@@ -6,6 +6,11 @@ import (
 )
 
 func main() {
-	b := blockchain.NewBlock("", "Gensis Block.")
-	fmt.Print(b)
+	//b := blockchain.NewBlock("", "Gensis Block.")
+	//fmt.Print(b)
+
+	bc := blockchain.NewBlockChain()
+	bc.AddGenesisBlock()
+	bc.AddBlock("first").AddBlock("second")
+	fmt.Println(bc)
 }
