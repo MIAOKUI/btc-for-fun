@@ -46,7 +46,7 @@ func (bc *BlockChain) GetBlock(key Hash) (*Block, error) {
 	if err != nil {
 		log.Fatal("block cannot be deserialized")
 	}
-	return b, err
+	return &b, err
 }
 
 func (bc *BlockChain) PrintIterate() {
