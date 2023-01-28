@@ -1,40 +1,42 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/MIAOKUI/btc-for-fun/blockchain"
 	"github.com/syndtr/goleveldb/leveldb"
 	"log"
+	"os"
+	"strings"
 )
 
-//
-//func main() {
-//	bc, err := InitBlockChain()
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	arg1 := ""
-//	if len(os.Args) >= 2 {
-//		arg1 = os.Args[1]
-//	}
-//	switch strings.ToLower(arg1) {
-//	case "help":
-//		fallthrough
-//	case "create:block":
-//		fs := flag.NewFlagSet("create:block", flag.ExitOnError)
-//		txs := fs.String("txs", "", "")
-//		fs.Parse(os.Args[2:])
-//		bc.AddBlock(*txs)
-//	case "show":
-//		bc.PrintIterate()
-//	case "init":
-//		bc.Clear()
-//	default:
-//		Usage()
-//	}
-//
-//}
+func main() {
+	bc, err := InitBlockChain()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	arg1 := ""
+	if len(os.Args) >= 2 {
+		arg1 = os.Args[1]
+	}
+	switch strings.ToLower(arg1) {
+	case "help":
+		fallthrough
+	case "create:block":
+		fs := flag.NewFlagSet("create:block", flag.ExitOnError)
+		txs := fs.String("txs", "", "")
+		fs.Parse(os.Args[2:])
+		bc.AddBlock(*txs)
+	case "show":
+		bc.PrintIterate()
+	case "init":
+		bc.Clear()
+	default:
+		Usage()
+	}
+
+}
 
 func InitBlockChain() (*blockchain.BlockChain, error) {
 	dbpath := "db"

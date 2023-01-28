@@ -1,23 +1,24 @@
-package blockchain
+package block
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"time"
 )
 
 type Hash = string
 
-const node_version = 0
+const HashLen = 256
+const nodeVersion = 0
+const blockBits = 12
 
 type Block struct {
-	header    BlockHeader
+	header    Header
 	txs       string
 	txCounter int
 	hashCurr  Hash
 }
 
-type BlockHeader struct {
+type Header struct {
 	version        int
 	hashPrevBlock  Hash
 	hashMerkleRoot Hash
@@ -28,20 +29,20 @@ type BlockHeader struct {
 
 func NewBlock(prevHash Hash, txs string) *Block {
 	b := &Block{
-		header: BlockHeader{
-			version:       node_version,
+		header: Header{
+			version:       nodeVersion,
 			hashPrevBlock: prevHash,
 			time:          time.Now(),
+			bits:          blockBits,
 		},
 		txs:       txs,
 		txCounter: 1,
 		hashCurr:  "",
 	}
-	b.SetHashCurr()
 	return b
 }
 
-func (bh *BlockHeader) Stringify() string {
+func (bh *Header) Stringify() string {
 	return fmt.Sprintf("%d%s%s%d%d%d",
 		bh.version,
 		bh.hashPrevBlock,
@@ -51,18 +52,42 @@ func (bh *BlockHeader) Stringify() string {
 		bh.nonce)
 }
 
+func (bh *Header) GetTime() time.Time {
+	return bh.time
+}
+
+func (bh *Header) GetHashPrevBlock() Hash {
+	return bh.hashPrevBlock
+}
+
 func (b *Block) GetServiceString() string {
-	return fmt.Sprintf("%d%s%s%d%d%d",
+	return fmt.Sprintf("%d%s%s%d%s%d",
 		b.header.version,
 		b.header.hashPrevBlock,
 		b.header.hashMerkleRoot,
-		b.header.time,
+		b.header.time.String(),
 		b.header.bits)
 }
 
-func (b *Block) SetHashCurr() *Block {
-	headerStr := b.header.Stringify()
-	b.hashCurr = fmt.Sprintf("%x", sha256.Sum256([]byte(headerStr)))
+func (b *Block) SetHashCurr(hash Hash) *Block {
+	b.hashCurr = hash
+	return b
+}
+
+func (b *Block) GetHashCurr() Hash {
+	return b.hashCurr
+}
+
+func (b *Block) GetTxs() string {
+	return b.txs
+}
+
+func (b *Block) GetHeader() *Header {
+	return &b.header
+}
+
+func (b *Block) SetNonce(nonce int) *Block {
+	b.header.nonce = nonce
 	return b
 }
 

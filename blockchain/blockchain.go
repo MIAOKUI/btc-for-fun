@@ -2,6 +2,8 @@ package blockchain
 
 import (
 	"fmt"
+	"github.com/MIAOKUI/btc-for-fun/block"
+	"github.com/MIAOKUI/btc-for-fun/pow"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"log"
@@ -9,7 +11,7 @@ import (
 )
 
 type BlockChain struct {
-	lashHash Hash
+	lashHash block.Hash
 	db       *leveldb.DB
 }
 
@@ -19,7 +21,7 @@ func NewBlockChain(db *leveldb.DB) *BlockChain {
 	}
 	data, err := db.Get([]byte("lastHash"), nil)
 	if err == nil {
-		bc.lashHash = Hash(data)
+		bc.lashHash = block.Hash(data)
 	}
 
 	return bc
@@ -33,30 +35,39 @@ func (bc *BlockChain) AddGenesisBlock() *BlockChain {
 }
 
 func (bc *BlockChain) AddBlock(txs string) *BlockChain {
-	b := NewBlock(bc.lashHash, txs)
-	if bs, err := BlockSerialize(*b); err != nil {
+	b := block.NewBlock(bc.lashHash, txs)
+
+	p := pow.NewPow(b)
+
+	nonce, hash := p.Proof()
+	if nonce == 0 || hash == "" {
+		log.Fatal("block Hashcash Proof Failed")
+	}
+	b.SetNonce(nonce).SetHashCurr(hash)
+
+	if bs, err := block.BlockSerialize(*b); err != nil {
 		log.Fatal("block can not be serialized")
 	} else {
-		err := bc.db.Put([]byte("b_"+b.hashCurr), bs, nil)
+		err := bc.db.Put([]byte("b_"+b.GetHashCurr()), bs, nil)
 		if err != nil {
 			log.Fatal("insert block error")
 
 		}
 	}
-	bc.lashHash = b.hashCurr
-	err := bc.db.Put([]byte("lastHash"), []byte(b.hashCurr), nil)
+	bc.lashHash = b.GetHashCurr()
+	err := bc.db.Put([]byte("lastHash"), []byte(b.GetHashCurr()), nil)
 	if err != nil {
 		log.Fatal("insert lasthash error")
 	}
 	return bc
 }
 
-func (bc *BlockChain) GetBlock(key Hash) (*Block, error) {
+func (bc *BlockChain) GetBlock(key block.Hash) (*block.Block, error) {
 	bs, err := bc.db.Get([]byte("b_"+key), nil)
 	if err != nil {
 		log.Fatal("block cannot be retrieve", err)
 	}
-	b, err := BlockDeserialize(bs)
+	b, err := block.BlockDeserialize(bs)
 	if err != nil {
 		log.Fatal("block cannot be deserialized", err)
 	}
@@ -80,11 +91,11 @@ func (bc *BlockChain) PrintIterate() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("hashCurr: ", b.hashCurr)
-		fmt.Println("txs: ", b.txs)
-		fmt.Println("time: ", b.header.time.Format(time.Layout))
-		fmt.Println("HashPrevious: ", b.header.hashPrevBlock)
-		curHash = b.header.hashPrevBlock
+		fmt.Println("hashCurr: ", b.GetHashCurr())
+		fmt.Println("txs: ", b.GetTxs())
+		fmt.Println("time: ", b.GetHeader().GetTime().Format(time.Layout))
+		fmt.Println("HashPrevious: ", b.GetHeader().GetHashPrevBlock())
+		curHash = b.GetHeader().GetHashPrevBlock()
 		fmt.Println()
 	}
 }

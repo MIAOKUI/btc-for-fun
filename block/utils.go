@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import (
 	"bytes"
@@ -6,10 +6,8 @@ import (
 	"time"
 )
 
-const HashLen = 256
-
 type BlockData struct {
-	Version        int
+	version        int
 	HashPrevBlock  Hash
 	HashMerkleRoot Hash
 	Time           time.Time
@@ -22,7 +20,7 @@ type BlockData struct {
 
 func BlockSerialize(b Block) ([]byte, error) {
 	bd := BlockData{
-		Version:        b.header.version,
+		version:        b.header.version,
 		HashPrevBlock:  b.header.hashPrevBlock,
 		HashMerkleRoot: b.header.hashMerkleRoot,
 		Time:           b.header.time,
@@ -50,8 +48,8 @@ func BlockDeserialize(bsData []byte) (Block, error) {
 		return Block{}, err
 	}
 	return Block{
-		header: BlockHeader{
-			version:        bd.Version,
+		header: Header{
+			version:        bd.version,
 			hashPrevBlock:  bd.HashPrevBlock,
 			hashMerkleRoot: bd.HashMerkleRoot,
 			time:           bd.Time,
