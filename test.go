@@ -1,23 +1,35 @@
 package main
 
 import (
-	"github.com/MIAOKUI/btc-for-fun/blockchain"
-	"github.com/syndtr/goleveldb/leveldb"
-	"log"
+	"crypto/sha256"
+	"fmt"
+	"math/big"
+	"strconv"
 )
 
+type Block struct {
+	CurrHash string
+	TXs      string
+}
+
 func main() {
-	//bc := blockchain.NewBlock("", "Gensis Block.")
-	//fmt.Print(bc)
-	dbpath := "testdb"
-	db, err := leveldb.OpenFile(dbpath, nil)
-	if err != nil {
-		log.Fatal(err)
+	bits := 20
+	target := big.NewInt(1)
+	target.Lsh(target, uint(256-bits))
+	fmt.Println(target.String())
+	nonce := 0
+	serviceStr := "block data"
+	var hashInt big.Int
+	for {
+		data := serviceStr + strconv.Itoa(nonce)
+		hash := sha256.Sum256([]byte(data))
+		hashInt.SetBytes(hash[:])
+		fmt.Println(hashInt.String(), nonce)
+		if hashInt.Cmp(target) == -1 {
+			fmt.Println("本机挖矿成功")
+			return
+		}
+		nonce++
 	}
 
-	bc := blockchain.NewBlockChain(db)
-	bc.AddGenesisBlock()
-	bc.AddBlock("first").AddBlock("second").AddBlock("third")
-	bc.PrintIterate()
-	//fmt.Println(bc)
 }

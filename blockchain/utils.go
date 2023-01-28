@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const HashLen = 256
+
 type BlockData struct {
 	Version        int
 	HashPrevBlock  Hash
@@ -42,7 +44,7 @@ func BlockDeserialize(bsData []byte) (Block, error) {
 	buffer := bytes.Buffer{}
 	buffer.Write(bsData)
 	decoder := gob.NewDecoder(&buffer)
-	bd := BlockData{}
+	bd := &BlockData{}
 
 	if err := decoder.Decode(bd); err != nil {
 		return Block{}, err

@@ -51,8 +51,21 @@ func (bh *BlockHeader) Stringify() string {
 		bh.nonce)
 }
 
+func (b *Block) GetServiceString() string {
+	return fmt.Sprintf("%d%s%s%d%d%d",
+		b.header.version,
+		b.header.hashPrevBlock,
+		b.header.hashMerkleRoot,
+		b.header.time,
+		b.header.bits)
+}
+
 func (b *Block) SetHashCurr() *Block {
 	headerStr := b.header.Stringify()
 	b.hashCurr = fmt.Sprintf("%x", sha256.Sum256([]byte(headerStr)))
 	return b
+}
+
+func (b *Block) GetBits() int {
+	return b.header.bits
 }
