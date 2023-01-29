@@ -91,6 +91,12 @@ func (bc *BlockChain) PrintIterate() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		pow := pow.NewPow(b)
+		if !pow.Validate() {
+			log.Fatal("Block <%s> is not Valid", b)
+			continue
+		}
+
 		fmt.Println("hashCurr: ", b.GetHashCurr())
 		fmt.Println("txs: ", b.GetTxs())
 		fmt.Println("time: ", b.GetHeader().GetTime().Format(time.Layout))

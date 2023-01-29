@@ -65,7 +65,7 @@ func (b *Block) GetServiceString() string {
 		b.header.version,
 		b.header.hashPrevBlock,
 		b.header.hashMerkleRoot,
-		b.header.time.String(),
+		b.header.time.Format("2006-01-02 14:04:05.999999999 -0700 MST"),
 		b.header.bits)
 }
 
@@ -93,4 +93,8 @@ func (b *Block) SetNonce(nonce int) *Block {
 
 func (b *Block) GetBits() int {
 	return b.header.bits
+}
+
+func (b *Block) GetNonce() int {
+	return b.header.nonce
 }
